@@ -7,14 +7,13 @@ cd /workspace
 rsync -av --exclude='tensorrt_llm_bls' tensorrtllm_backend/all_models/inflight_batcher_llm/ triton_model_repo/
 
 echo "Building TRT-LLM engines..."
-MODEL_NAME="t5-small"
 MODEL_TYPE="t5"
-export HF_MODEL_PATH=/workspace/hf_models/${MODEL_NAME}
-export UNIFIED_CKPT_PATH=/workspace/ckpt/${MODEL_NAME}
-export ENGINE_PATH=/workspace/triton_model_repo/tensorrt_llm/1/engines/${MODEL_NAME}
+export HF_MODEL_PATH=/workspace/hf_models/
+export UNIFIED_CKPT_PATH=/workspace/ckpt/
+export ENGINE_PATH=/workspace/triton_model_repo/tensorrt_llm/1/engines/
 cp -r ${HF_MODEL_PATH} /workspace/triton_model_repo/tensorrt_llm/1/hf_models/
-export SAGEMAKER_ENGINE_PATH=/opt/ml/model/tensorrt_llm/1/engines/${MODEL_NAME}
-export SAGEMAKER_TOKENIZER_PATH=/opt/ml/model/tensorrt_llm/1/hf_models/${MODEL_NAME}
+export SAGEMAKER_ENGINE_PATH=/opt/ml/model/tensorrt_llm/1/engines
+export SAGEMAKER_TOKENIZER_PATH=/opt/ml/model/tensorrt_llm/1/hf_models/
 
 INFERENCE_PRECISION=float16
 TP_SIZE=1
