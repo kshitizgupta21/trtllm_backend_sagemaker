@@ -1,5 +1,5 @@
 echo "Git cloning the TRT-LLM Backend repo from GitHub and setting it up..."
-git clone https://github.com/triton-inference-server/tensorrtllm_backend.git -b v0.12.0 
+git clone https://github.com/triton-inference-server/tensorrtllm_backend.git -b v0.13.0 
 cd tensorrtllm_backend
 git lfs install
 git submodule update --init --recursive

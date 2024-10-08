@@ -18,9 +18,10 @@
 - Click **Create notebook instance**
 <br />
 <img src="img/sm_03.png" alt="Set notebook permissions and git repo" width="550"/>
-- Within the notebook instance navigate to 2.projects
+
+- Within the notebook instance navigate to [2.projects](https://github.com/aws-samples/awsome-inference/tree/main/2.projects)
 
 ## Examples
 
-1. For Deploying Enc-Dec Model like T5/BART with Triton TensorRT-LLM on Amazon SageMaker see [enc_dec_sagemaker.ipynb](./enc_dec_sagemaker.ipynb)
+1. For Deploying Encoder-Decoder Model like T5/BART with Triton TensorRT-LLM see [enc_dec_sagemaker.ipynb](./enc_dec_sagemaker.ipynb)
 2. For Deploying Decoder-only model like Mistral-7B with Triton TensorRT-LLM see [mistral_sagemaker.ipynb](./mistral_sagemaker.ipynb).
