@@ -11,6 +11,7 @@ echo "Starting the process of building TRT-LLM engines..."
 export HF_MODEL_PATH=/workspace/hf_models/
 export UNIFIED_CKPT_PATH=/workspace/ckpt/
 export ENGINE_PATH=/workspace/triton_model_repo/tensorrt_llm/1/engines/
+[ -d ${HF_MODEL_PATH}/.cache ] && rm -rf ${HF_MODEL_PATH}/.cache
 rsync -av --exclude="*.ot" --exclude="*onnx" --exclude="*.bin" --exclude="*.safetensors" --exclude="*.h5" --exclude="*.msgpack" ${HF_MODEL_PATH} /workspace/triton_model_repo/tensorrt_llm/1/hf_models/
 export SAGEMAKER_ENGINE_PATH=/opt/ml/model/tensorrt_llm/1/engines
 export SAGEMAKER_TOKENIZER_PATH=/opt/ml/model/tensorrt_llm/1/hf_models/
@@ -18,15 +19,21 @@ export SAGEMAKER_TOKENIZER_PATH=/opt/ml/model/tensorrt_llm/1/hf_models/
 
 INFERENCE_PRECISION=float16
 TP_SIZE=1
-MAX_BEAM_WIDTH=1
+MAX_BEAM_WIDTH=2
 MAX_BATCH_SIZE=32
-MAX_INPUT_LEN=32768
+MAX_INPUT_LEN=1024
 MAX_OUTPUT_LEN=201
 
-python3 tensorrtllm_backend/tensorrt_llm/examples/llama/convert_checkpoint.py --model_dir ${HF_MODEL_PATH} \
+echo "Converting checkpoint to TRT-LLM format.."
+
+python3 tensorrtllm_backend/tensorrt_llm/examples/llama/convert_checkpoint.py \
+                             --model_dir ${HF_MODEL_PATH} \
                              --output_dir ${UNIFIED_CKPT_PATH} \
                              --dtype ${INFERENCE_PRECISION}
                              
+echo "Finished converting checkpoint to TRT-LLM format."
+
+echo "Building TRT-LLM engine.."
 trtllm-build --checkpoint_dir ${UNIFIED_CKPT_PATH} \
              --output_dir ${ENGINE_PATH} \
              --gemm_plugin auto \
@@ -37,7 +44,7 @@ trtllm-build --checkpoint_dir ${UNIFIED_CKPT_PATH} \
 echo "Finished building TRT-LLM engines..."
 
 echo "Preparing Triton Model Repository for the model..."
-python3 tensorrtllm_backend/tools/fill_template.py -i triton_model_repo/tensorrt_llm/config.pbtxt triton_backend:tensorrtllm,triton_max_batch_size:${MAX_BATCH_SIZE},decoupled_mode:False,max_beam_width:${MAX_BEAM_WIDTH},engine_dir:${ENGINE_PATH},kv_cache_free_gpu_mem_fraction:0.95,exclude_input_in_output:True,enable_kv_cache_reuse:False,batching_strategy:inflight_fused_batching,max_queue_delay_microseconds:0,enable_chunked_context:False,max_queue_size:0
+python3 tensorrtllm_backend/tools/fill_template.py -i triton_model_repo/tensorrt_llm/config.pbtxt triton_backend:tensorrtllm,triton_max_batch_size:${MAX_BATCH_SIZE},decoupled_mode:False,max_beam_width:${MAX_BEAM_WIDTH},engine_dir:${SAGEMAKER_ENGINE_PATH},kv_cache_free_gpu_mem_fraction:0.95,exclude_input_in_output:True,enable_kv_cache_reuse:False,batching_strategy:inflight_fused_batching,max_queue_delay_microseconds:0,enable_chunked_context:False,max_queue_size:0
 
 python3 tensorrtllm_backend/tools/fill_template.py -i triton_model_repo/preprocessing/config.pbtxt tokenizer_dir:${SAGEMAKER_TOKENIZER_PATH},triton_max_batch_size:${MAX_BATCH_SIZE},preprocessing_instance_count:1
 
