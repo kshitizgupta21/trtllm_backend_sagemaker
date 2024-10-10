@@ -16,28 +16,28 @@ rsync -av --exclude="*.ot" --exclude="*onnx" --exclude="*.bin" --exclude="*.safe
 export SAGEMAKER_ENGINE_PATH=/opt/ml/model/tensorrt_llm/1/engines
 export SAGEMAKER_TOKENIZER_PATH=/opt/ml/model/tensorrt_llm/1/hf_models/
 
-
-INFERENCE_PRECISION=float16
 TP_SIZE=1
-MAX_BEAM_WIDTH=5
+MAX_BEAM_WIDTH=1
 MAX_BATCH_SIZE=32
 MAX_INPUT_LEN=1024
 MAX_OUTPUT_LEN=201
 
-echo "Converting checkpoint to TRT-LLM format.."
+echo "Quantizing model checkpoint to INT4 AWQ TRT-LLM format.."
 
-python3 tensorrtllm_backend/tensorrt_llm/examples/llama/convert_checkpoint.py \
-                             --model_dir ${HF_MODEL_PATH} \
-                             --output_dir ${UNIFIED_CKPT_PATH} \
-                             --dtype ${INFERENCE_PRECISION}
                              
-echo "Finished converting checkpoint to TRT-LLM format."
+python3 tensorrtllm_backend/tensorrt_llm/examples/quantization/quantize.py \
+                               --model_dir ${HF_MODEL_PATH} \
+                               --dtype float16 \
+                               --qformat int4_awq \
+                               --awq_block_size 128 \
+                               --output_dir ${UNIFIED_CKPT_PATH} \
+                               --calib_size 32
+                             
 
 echo "Building TRT-LLM engine.."
 trtllm-build --checkpoint_dir ${UNIFIED_CKPT_PATH} \
              --output_dir ${ENGINE_PATH} \
              --gemm_plugin auto \
-             --max_input_len ${MAX_INPUT_LEN} \
              --max_beam_width ${MAX_BEAM_WIDTH} 
 
 
