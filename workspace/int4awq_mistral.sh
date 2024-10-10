@@ -17,7 +17,7 @@ export SAGEMAKER_ENGINE_PATH=/opt/ml/model/tensorrt_llm/1/engines
 export SAGEMAKER_TOKENIZER_PATH=/opt/ml/model/tensorrt_llm/1/hf_models/
 
 TP_SIZE=1
-MAX_BEAM_WIDTH=1
+MAX_BEAM_WIDTH=2
 MAX_BATCH_SIZE=32
 MAX_INPUT_LEN=1024
 MAX_OUTPUT_LEN=201
