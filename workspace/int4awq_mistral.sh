@@ -24,7 +24,7 @@ MAX_OUTPUT_LEN=201
 
 echo "Quantizing model checkpoint to INT4 AWQ TRT-LLM format.."
 
-                             
+pip install setuptools                             
 python3 tensorrtllm_backend/tensorrt_llm/examples/quantization/quantize.py \
                                --model_dir ${HF_MODEL_PATH} \
                                --dtype float16 \
